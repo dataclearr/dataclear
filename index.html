@@ -1656,7 +1656,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <option>No sé qué dice mi informe pero quiero revisarlo</option>
       </select>
     </div>
-    <button type="submit" class="form-submit" id="submitBtn">Quiero que revisen mi informe →</button>
+    <button type="button" class="form-submit" id="submitBtn">Quiero que revisen mi informe →</button>
     </form>
   </div>
 </section>
@@ -1758,13 +1758,16 @@ window.onload = function() {
 // Formulario → WhatsApp (con datos precargados)
 var btn = document.getElementById('submitBtn');
 if (btn) {
-  btn.closest('form').addEventListener('submit', function(e) {
+  btn.addEventListener('click', function(e) {
     e.preventDefault();
-    btn.textContent = 'Abriendo WhatsApp...';
-    btn.style.opacity = '0.7';
-    btn.disabled = true;
+    var form = btn.closest('form');
+    if (!form) return;
+    if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+      if (typeof form.reportValidity === 'function') form.reportValidity();
+      return;
+    }
 
-    var data = new FormData(e.target);
+    var data = new FormData(form);
     var nombre    = (data.get('nombre')      || '').trim();
     var telefono  = (data.get('telefono')    || '').trim();
     var email     = (data.get('email')       || '').trim();
@@ -1779,6 +1782,10 @@ if (btn) {
     if (documento) lineas.push('CUIL/CUIT/DNI: ' + documento);
     if (tipo)      lineas.push('Soy: ' + tipo);
     if (situacion) lineas.push('Situación: ' + situacion);
+
+    btn.textContent = 'Abriendo WhatsApp...';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
 
     var url = 'https://wa.me/5493515163483?text=' + encodeURIComponent(lineas.join('\n'));
     window.location.href = url;
